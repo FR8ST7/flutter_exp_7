@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State Management & Serialization - Flutter Experiment 7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Roboto', -apple-system, sans-serif;
+      background-color: #0f172a;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .app-viewport {
+      width: 100%;
+      min-height: 100vh;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* AppBar */
+    .app-bar {
+      background-color: #ccfbf1;
+      color: #0f766e;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .app-bar-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    /* Body */
+    .app-body {
+      flex: 1;
+      padding: 24px 20px;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .card-header .material-icons {
+      color: #0d9488;
+      font-size: 24px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #0d9488;
+    }
+
+    .btn-add {
+      width: 100%;
+      background: #0d9488;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Code Inspector */
+    .json-card {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+
+    .json-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #166534;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .json-code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.82rem;
+      color: #15803d;
+      background: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #dcfce7;
+      margin-bottom: 6px;
+    }
+
+    /* Student List */
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .list-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .student-item {
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .student-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #0d9488;
+      color: white;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-viewport">
+    <div class="app-bar">
+      <span class="material-icons">menu</span>
+      <div class="app-bar-title">State & Serialization</div>
+      <span class="material-icons">info_outline</span>
+    </div>
+
+    <div class="app-body">
+      <!-- Input Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="material-icons">person_add</span>
+          <div class="card-title">Add Student Entry (State Change)</div>
+        </div>
+        <div class="form-row">
+          <input type="text" id="name-input" class="form-input" placeholder="Student Name (e.g. Raj)" value="Raj">
+          <input type="text" id="course-input" class="form-input" placeholder="Course (e.g. CSE)" value="CSE">
+        </div>
+        <button class="btn-add" onclick="addStudent()">
+          <span class="material-icons">add</span>
+          Add Student to List (setState)
+        </button>
+      </div>
+
+      <!-- JSON Inspector Card -->
+      <div class="json-card">
+        <div class="json-title">
+          <span class="material-icons" style="font-size:16px;">code</span>
+          JSON Serialization Log (Steps 4 & 5)
+        </div>
+        <div class="json-code" id="json-output">toJson() Map: {"id":1,"name":"Raj","course":"CSE"}</div>
+        <div style="font-size:0.82rem; font-weight:700; color:#166534;" id="deserialized-output">fromJson() Object Name: Raj</div>
+      </div>
+
+      <!-- Student List -->
+      <div class="list-header">
+        <div class="list-title" id="list-count">Student State List (1)</div>
+        <button style="background:none; border:none; color:#0d9488; font-weight:700; cursor:pointer;" onclick="clearAll()">Clear All</button>
+      </div>
+
+      <div id="student-list">
+        <!-- Student items rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class Student {
+      constructor(id, name, course) {
+        this.id = id;
+        this.name = name;
+        this.course = course;
+      }
+      toJson() {
+        return { id: this.id, name: this.name, course: this.course };
+      }
+      static fromJson(json) {
+        return new Student(json.id, json.name, json.course);
+      }
+    }
+
+    let students = [new Student(1, 'Raj', 'CSE')];
+    let nextId = 2;
+
+    function renderList() {
+      const container = document.getElementById('student-list');
+      document.getElementById('list-count').innerText = `Student State List (${students.length})`;
+      
+      if (students.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">No students in state. Click "Add Student" above!</div>';
+        return;
+      }
+
+      container.innerHTML = students.map((s, index) => `
+        <div class="student-item">
+          <div class="student-info">
+            <div class="student-avatar">${s.id}</div>
+            <div>
+              <div style="font-weight:700; color:#0f172a;">${s.name}</div>
+              <div style="font-size:0.82rem; color:#64748b;">Course: ${s.course}</div>
+            </div>
+          </div>
+          <button class="btn-delete" onclick="removeStudent(${index})">
+            <span class="material-icons">delete_outline</span>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function addStudent() {
+      const nameInput = document.getElementById('name-input');
+      const courseInput = document.getElementById('course-input');
+
+      const name = nameInput.value.trim() || 'Raj';
+      const course = courseInput.value.trim() || 'CSE';
+
+      const s = new Student(nextId++, name, course);
+      
+      // Step 4 & 5 Serialization demo
+      const jsonMap = s.toJson();
+      const restored = Student.fromJson(jsonMap);
+
+      students.push(s);
+
+      document.getElementById('json-output').innerText = 'toJson() Map: ' + JSON.stringify(jsonMap);
+      document.getElementById('deserialized-output').innerText = 'fromJson() Object Name: ' + restored.name;
+
+      nameInput.value = '';
+      courseInput.value = '';
+
+      renderList();
+    }
+
+    function removeStudent(index) {
+      students.splice(index, 1);
+      renderList();
+    }
+
+    function clearAll() {
+      students = [];
+      renderList();
+    }
+
+    renderList();
+  </script>
+
+</body>
+</html>
