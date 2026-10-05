@@ -1,0 +1,11 @@
+{
+    "name": "State & Serialization - Experiment 7",
+    "short_name": "StateApp",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#0d9488",
+    "description": "Flutter Experiment 7 - Application State Management and Serialization",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false
+}
